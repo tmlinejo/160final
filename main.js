@@ -1,6 +1,9 @@
+var maze = generateMaze(25,25)
 
-var speed = .05
-var rotSpeed = .02
+var speed = .2
+var rotSpeed = .06
+var boxSize = 3
+var lightIntensity = 1
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -8,6 +11,35 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+var geometry
+var material
+var walls = []
+var count = 0
+for(var i=0; i<maze.length; i++)
+{
+    for(var j=0; j<maze[i].length; j++)
+    {
+        if(maze[i][j] == 1)
+        {
+            geometry = new THREE.BoxGeometry(boxSize,boxSize,boxSize)
+            material = new THREE.MeshLambertMaterial({color: Math.ceil(16777215*Math.random()) } );
+            walls[count] = new THREE.Mesh(geometry, material);
+            scene.add(walls[count])
+            walls[count].position.x = (i+.5)*boxSize
+            walls[count].position.y = 0
+            walls[count].position.z = (j+.5)*boxSize
+            count++
+        }
+        if(maze[i][j] == 2)
+        {
+            camera.position.x = i*boxSize
+            camera.position.z = j*boxSize
+        }
+    }
+}
+
+
+/*
 var geometry = new THREE.SphereGeometry( 30, 16, 16 );
 var material = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
 material.side = THREE.BackSide
@@ -22,17 +54,17 @@ for(var i=0; i<20; i++)
     var radTemp = 4*Math.random()
     rooms[i] = new room((Math.random() - .5) * 30,(Math.random() - .5) *2 * radTemp,(Math.random() - .5) * 30, radTemp, 30)
     scene.add(rooms[i].form)
-/*
+
     geometry = new THREE.SphereGeometry(2*Math.random(), 16, 16)
     material = new THREE.MeshLambertMaterial( { color: Math.ceil(16777215*Math.random()) } );
     cube[i] = new THREE.Mesh(geometry, material);
     cube[i].position.x = (Math.random() - .5) * 10
     cube[i].position.y = (Math.random() - .5) * 10
     cube[i].position.z = (Math.random() - .5) * 10
-    scene.add(cube[i])*/
-}
+    scene.add(cube[i])
+}*/
 
-var pointLight = new THREE.PointLight(0xFFFFFF, 1, 20);
+var pointLight = new THREE.PointLight(0xFFFFFF, lightIntensity, 20);
 pointLight.position.x = 10;
 pointLight.position.y = 50;
 pointLight.position.z = 130;
@@ -107,7 +139,7 @@ window.addEventListener("keydown", function(event)
     if(event.keyCode === 27)
         clearAllKeys()
     if(event.keyCode === 13)
-        alert([[camera.position.x, camera.position.y, camera.position.z], [camera.rotation.x, camera.rotation.y, camera.rotation.z]])
+        alert([Math.floor(camera.position.x/boxSize),Math.floor(camera.position.z/boxSize),maze[Math.floor(camera.position.x/boxSize)][Math.floor(camera.position.z/boxSize)]])
     //else alert(event.keyCode)
 });
     window.addEventListener("keyup", function(event)
@@ -171,10 +203,10 @@ function applyKeyInput()
         //pointLight.position.z += speed
     }
     if(kLeft)
-        camera.rotation.y += speed
+        camera.rotation.y += rotSpeed
     if(kRigh)
-        camera.rotation.y -= speed
-    /*
+        camera.rotation.y -= rotSpeed
+    
     if(keyA)
         camera.position.x -= speed;
     if(keyS)
@@ -182,7 +214,7 @@ function applyKeyInput()
     if(keyD)
         camera.position.x += speed;
     if(keyW)
-        camera.position.y += speed;
+        camera.position.y += speed;/*
     if(key1)
     {
         camera.rotation.x -= rotSpeed/Math.sqrt(2);
@@ -224,13 +256,24 @@ function moveForward(dist)
     var y = dist*Math.sin(xR)
     var x = dist*Math.cos(xR)*Math.sin(yR)
     
-    camera.position.x += x
-    camera.position.y += y
-    camera.position.z += z
-    pointLight.position.x += x
-    pointLight.position.y += y
-    pointLight.position.z += z
+    if(isSpaceClear(camera.position.x + (10*x), camera.position.y+(10*y), camera.position.z+(10*z)))
+    {
+        camera.position.x += x
+        camera.position.y += y
+        camera.position.z += z
+        pointLight.position.x += x
+        pointLight.position.y += y
+        pointLight.position.z += z
+    }
     
+}
+
+function isSpaceClear(xIn, yIn, zIn)
+{
+    if(keyAlt || maze[Math.floor(xIn/boxSize)][Math.floor(zIn/boxSize)] != 1)
+        return true
+    else
+        return false
 }
 
 function clearAllKeys()
@@ -274,4 +317,36 @@ function room(xIn, yIn, zIn, rIn, detail)
     this.form.position.x = xIn
     this.form.position.y = yIn
     this.form.position.z = zIn
+}
+
+function generateMaze(width, height)
+{
+    var output = []
+    output [0] =  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [1] =  [1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [2] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [3] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [4] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [5] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [6] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [7] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [8] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [9] =  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1]
+    output [10] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1]
+    output [11] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1]
+    output [12] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1]
+    output [13] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1]
+    output [14] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1]
+    output [15] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1]
+    output [16] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,3,1,1,1,1,1,1,1]
+    output [17] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [18] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [19] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [20] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [21] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [22] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [23] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [24] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    output [25] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    return output
 }
