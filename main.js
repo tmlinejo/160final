@@ -19,7 +19,8 @@ scene.add( cube );
 
 for(var i=0; i<20; i++)
 {
-    rooms[i] = new room((Math.random() - .5) * 10,(Math.random() - .5) * 10,(Math.random() - .5) * 10, 2*Math.random(), 16)
+    var radTemp = 4*Math.random()
+    rooms[i] = new room((Math.random() - .5) * 30,(Math.random() - .5) *2 * radTemp,(Math.random() - .5) * 30, radTemp, 30)
     scene.add(rooms[i].form)
 /*
     geometry = new THREE.SphereGeometry(2*Math.random(), 16, 16)
@@ -41,17 +42,19 @@ camera.position.z = 5;
 render();
 
 
+var kBack = false;
+var kFore = false;
+var kLeft = false;
+var kRigh = false;
 var keyS = false;
 var keyW = false;
 var keyA = false;
 var keyD = false;
 var keyAlt = false;
-var key0 = false;
 var key1 = false;
 var key2 = false;
 var key3 = false;
 var key4 = false;
-var key5 = false;
 var key6 = false;
 var key7 = false;
 var key8 = false;
@@ -59,6 +62,14 @@ var key9 = false;
 
 window.addEventListener("keydown", function(event)
 {
+    if(event.keyCode === 38)
+        kFore = true
+    if(event.keyCode === 40)
+        kBack = true
+    if(event.keyCode === 37)
+        kLeft = true
+    if(event.keyCode === 39)
+        kRigh = true
     if(event.keyCode === 83)
         keyS = true
     if(event.keyCode === 68)
@@ -68,13 +79,13 @@ window.addEventListener("keydown", function(event)
     if(event.keyCode === 87)
         keyW = true
     if(event.keyCode === 32)
-        key5 = true
+        kFore = true
     if(event.keyCode === 16)
-        key0 = true
+        kBack = true
     if(event.keyCode === 18)
         keyAlt = true
     if(event.keyCode === 96)
-        key0 = true
+        kBack = true
     if(event.keyCode === 97)
         key1 = true
     if(event.keyCode === 98)
@@ -84,7 +95,7 @@ window.addEventListener("keydown", function(event)
     if(event.keyCode === 100)
         key4 = true
     if(event.keyCode === 101)
-        key5 = true
+        kFore = true
     if(event.keyCode === 102)
         key6 = true
     if(event.keyCode === 103)
@@ -101,6 +112,14 @@ window.addEventListener("keydown", function(event)
 });
     window.addEventListener("keyup", function(event)
 {
+    if(event.keyCode === 38)
+        kFore = false
+    if(event.keyCode === 40)
+        kBack = false
+    if(event.keyCode === 37)
+        kLeft = false
+    if(event.keyCode === 39)
+        kRigh = false
     if(event.keyCode === 83)
         keyS = false
     if(event.keyCode === 68)
@@ -110,13 +129,13 @@ window.addEventListener("keydown", function(event)
     if(event.keyCode === 87)
         keyW = false
     if(event.keyCode === 32)
-        key5 = false
+        kFore = false
     if(event.keyCode === 16)
-        key0 = false
+        kBack = false
     if(event.keyCode === 18)
         keyAlt = false
     if(event.keyCode === 96)
-        key0 = false
+        kBack = false
     if(event.keyCode === 97)
         key1 = false
     if(event.keyCode === 98)
@@ -126,7 +145,7 @@ window.addEventListener("keydown", function(event)
     if(event.keyCode === 100)
         key4 = false
     if(event.keyCode === 101)
-        key5 = false
+        kFore = false
     if(event.keyCode === 102)
         key6 = false
     if(event.keyCode === 103)
@@ -139,6 +158,23 @@ window.addEventListener("keydown", function(event)
 
 function applyKeyInput()
 {
+    if(kFore)
+    {
+        moveForward(-speed);
+        //camera.position.z -= speed
+        //pointLight.position.z -= speed
+    }
+    if(kBack)
+    {
+        moveForward(speed);
+        //camera.position.z += speed
+        //pointLight.position.z += speed
+    }
+    if(kLeft)
+        camera.rotation.y += speed
+    if(kRigh)
+        camera.rotation.y -= speed
+    /*
     if(keyA)
         camera.position.x -= speed;
     if(keyS)
@@ -147,18 +183,6 @@ function applyKeyInput()
         camera.position.x += speed;
     if(keyW)
         camera.position.y += speed;
-    if(key5)
-    {
-        moveForward(-speed);
-        //camera.position.z -= speed
-        //pointLight.position.z -= speed
-    }
-    if(key0)
-    {
-        moveForward(speed);
-        //camera.position.z += speed
-        //pointLight.position.z += speed
-    }
     if(key1)
     {
         camera.rotation.x -= rotSpeed/Math.sqrt(2);
@@ -187,6 +211,7 @@ function applyKeyInput()
         camera.rotation.x += rotSpeed/Math.sqrt(2);
         camera.rotation.y -= rotSpeed/Math.sqrt(2);
     }
+    */
     camera.rotation.x = camera.rotation.x % (2*Math.PI);
     camera.rotation.y = camera.rotation.y % (2*Math.PI);
 }
@@ -210,17 +235,17 @@ function moveForward(dist)
 
 function clearAllKeys()
 {
+    kBack = false;
+    kFore = false;
     keyS = false;
     keyW = false;
     keyA = false;
     keyD = false;
     keyAlt = false;
-    key0 = false;
     key1 = false;
     key2 = false;
     key3 = false;
     key4 = false;
-    key5 = false;
     key6 = false;
     key7 = false;
     key8 = false;
@@ -246,7 +271,7 @@ function room(xIn, yIn, zIn, rIn, detail)
     this.geometry = new THREE.SphereGeometry(rIn, detail, detail)
     this.material = new THREE.MeshLambertMaterial( { color: Math.ceil(16777215*Math.random()) });
     this.form = new THREE.Mesh(this.geometry, this.material);
-    this.form.position.x = (Math.random() - .5) * 10
-    this.form.position.y = (Math.random() - .5) * 10
-    this.form.position.z = (Math.random() - .5) * 10
+    this.form.position.x = xIn
+    this.form.position.y = yIn
+    this.form.position.z = zIn
 }
