@@ -8,22 +8,38 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-var geometry = new THREE.SphereGeometry( 1, 16, 16 );
+var geometry = new THREE.SphereGeometry( 30, 16, 16 );
 var material = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
+material.side = THREE.BackSide
+var rooms = []
 var cube = new THREE.Mesh( geometry, material );
 scene.add( cube );
-// create a point light
-var pointLight = new THREE.PointLight(0xFFFFFF, 1, 500);
 
-// set its position
+
+
+for(var i=0; i<20; i++)
+{
+    rooms[i] = new room((Math.random() - .5) * 10,(Math.random() - .5) * 10,(Math.random() - .5) * 10, 2*Math.random(), 16)
+    scene.add(rooms[i].form)
+/*
+    geometry = new THREE.SphereGeometry(2*Math.random(), 16, 16)
+    material = new THREE.MeshLambertMaterial( { color: Math.ceil(16777215*Math.random()) } );
+    cube[i] = new THREE.Mesh(geometry, material);
+    cube[i].position.x = (Math.random() - .5) * 10
+    cube[i].position.y = (Math.random() - .5) * 10
+    cube[i].position.z = (Math.random() - .5) * 10
+    scene.add(cube[i])*/
+}
+
+var pointLight = new THREE.PointLight(0xFFFFFF, 1, 20);
 pointLight.position.x = 10;
 pointLight.position.y = 50;
 pointLight.position.z = 130;
-
-// add to the scene
 scene.add(pointLight);
+
 camera.position.z = 5;
 render();
+
 
 var keyS = false;
 var keyW = false;
@@ -80,7 +96,7 @@ window.addEventListener("keydown", function(event)
     if(event.keyCode === 27)
         clearAllKeys()
     if(event.keyCode === 13)
-        alert([camera.position.x, camera.rotation.x])
+        alert([[camera.position.x, camera.position.y, camera.position.z], [camera.rotation.x, camera.rotation.y, camera.rotation.z]])
     //else alert(event.keyCode)
 });
     window.addEventListener("keyup", function(event)
@@ -124,34 +140,24 @@ window.addEventListener("keydown", function(event)
 function applyKeyInput()
 {
     if(keyA)
-    {
-        camera.position.x -= speed
-        pointLight.position.x -= speed
-    }
+        camera.position.x -= speed;
     if(keyS)
-    {
-        camera.position.y -= speed
-        pointLight.position.y -= speed
-    }
+        camera.position.y -= speed;
     if(keyD)
-    {
-        camera.position.x += speed
-        pointLight.position.x += speed
-    }
+        camera.position.x += speed;
     if(keyW)
-    {
-        camera.position.y += speed
-        pointLight.position.y += speed
-    }
+        camera.position.y += speed;
     if(key5)
     {
-        camera.position.z -= speed
-        pointLight.position.z -= speed
+        moveForward(-speed);
+        //camera.position.z -= speed
+        //pointLight.position.z -= speed
     }
     if(key0)
     {
-        camera.position.z += speed
-        pointLight.position.z += speed
+        moveForward(speed);
+        //camera.position.z += speed
+        //pointLight.position.z += speed
     }
     if(key1)
     {
@@ -185,8 +191,20 @@ function applyKeyInput()
     camera.rotation.y = camera.rotation.y % (2*Math.PI);
 }
 
-function movePlayer(xIn, yIn, zIn)
+function moveForward(dist)
 {
+    var xR = camera.rotation.x
+    var yR = camera.rotation.y
+    var z = dist*Math.cos(xR)*Math.cos(yR)
+    var y = dist*Math.sin(xR)
+    var x = dist*Math.cos(xR)*Math.sin(yR)
+    
+    camera.position.x += x
+    camera.position.y += y
+    camera.position.z += z
+    pointLight.position.x += x
+    pointLight.position.y += y
+    pointLight.position.z += z
     
 }
 
@@ -211,10 +229,24 @@ function clearAllKeys()
 
 function render()
 {
-    applyKeyInput();
     requestAnimationFrame( render );
     renderer.render( scene, camera );
-    cube.rotation.x += 0.1;
-    cube.rotation.y += 0.1;
-//    pointLight.position.z+=1;
+    applyKeyInput();
+    pointLight.position.x = camera.position.x
+    pointLight.position.y = camera.position.y
+    pointLight.position.z = camera.position.z
+}
+
+function room(xIn, yIn, zIn, rIn, detail)
+{
+    this.x = xIn;
+    this.y = yIn;
+    this.z = zIn;
+    this.r = rIn;
+    this.geometry = new THREE.SphereGeometry(rIn, detail, detail)
+    this.material = new THREE.MeshLambertMaterial( { color: Math.ceil(16777215*Math.random()) });
+    this.form = new THREE.Mesh(this.geometry, this.material);
+    this.form.position.x = (Math.random() - .5) * 10
+    this.form.position.y = (Math.random() - .5) * 10
+    this.form.position.z = (Math.random() - .5) * 10
 }
