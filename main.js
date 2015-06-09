@@ -60,19 +60,47 @@ var kBack = false;
 var kFore = false;
 var kLeft = false;
 var kRigh = false;
-var keyS = false;
-var keyW = false;
-var keyA = false;
-var keyD = false;
 var keyAlt = false;
-var key1 = false;
-var key2 = false;
-var key3 = false;
-var key4 = false;
-var key6 = false;
-var key7 = false;
-var key8 = false;
-var key9 = false;
+var leftMouse = false;
+var rightMouse = false;
+var prevx = 0
+var prevy = 0
+var cheatUp = false
+var cheatDown = false
+
+window.addEventListener("mousewheel", function(event)
+{
+    pointLight.intensity += event.wheelDelta / (Math.abs(event.wheelDelta)*20)
+});
+
+window.addEventListener("contextmenu", function(event) { event.preventDefault();}); // prevent right click menu
+window.addEventListener("mousedown", function(event)
+{
+    if(event.button === 0) // left click
+        leftMouse = true
+    if(event.button === 2) // right click
+        rightMouse = true
+    prevx = event.clientX
+});
+window.addEventListener("mouseup", function(event)
+{
+    if(event.button === 0) // left unclick
+        leftMouse = false
+    if(event.button === 1)
+        pointLight.intensity = lightIntensity; 
+    if(event.button === 2) // right unclick
+        rightMouse = false
+});
+window.addEventListener("mousemove", function(event)
+{
+    if(rightMouse)
+    {
+        var movex = event.clientX - prevx
+        camera.rotation.y -= movex / 200
+    }
+    prevx = event.clientX
+    prevy = event.clientY
+});
 
 window.addEventListener("keydown", function(event)
 {
@@ -85,13 +113,13 @@ window.addEventListener("keydown", function(event)
     if(event.keyCode === 39)
         kRigh = true
     if(event.keyCode === 83)
-        keyS = true
+        kBack = true
     if(event.keyCode === 68)
-        keyD = true
+        kRigh = true
     if(event.keyCode === 65)
-        keyA = true
+        kLeft = true
     if(event.keyCode === 87)
-        keyW = true
+        kFore = true
     if(event.keyCode === 32)
         kFore = true
     if(event.keyCode === 16)
@@ -100,24 +128,10 @@ window.addEventListener("keydown", function(event)
         keyAlt = true
     if(event.keyCode === 96)
         kBack = true
-    if(event.keyCode === 97)
-        key1 = true
-    if(event.keyCode === 98)
-        key2 = true
-    if(event.keyCode === 99)
-        key3 = true
-    if(event.keyCode === 100)
-        key4 = true
-    if(event.keyCode === 101)
-        kFore = true
-    if(event.keyCode === 102)
-        key6 = true
-    if(event.keyCode === 103)
-        key7 = true
-    if(event.keyCode === 104)
-        key8 = true
-    if(event.keyCode === 105)
-        key9 = true
+    if(event.keyCode === 79)
+        cheatDown = true
+    if(event.keyCode === 80)
+        cheatUp = true
     if(event.keyCode === 27)
         clearAllKeys()
     if(event.keyCode === 13)
@@ -135,13 +149,13 @@ window.addEventListener("keydown", function(event)
     if(event.keyCode === 39)
         kRigh = false
     if(event.keyCode === 83)
-        keyS = false
+        kBack = false
     if(event.keyCode === 68)
-        keyD = false
+        kRigh = false
     if(event.keyCode === 65)
-        keyA = false
+        kLeft = false
     if(event.keyCode === 87)
-        keyW = false
+        kFore = false
     if(event.keyCode === 32)
         kFore = false
     if(event.keyCode === 16)
@@ -150,29 +164,15 @@ window.addEventListener("keydown", function(event)
         keyAlt = false
     if(event.keyCode === 96)
         kBack = false
-    if(event.keyCode === 97)
-        key1 = false
-    if(event.keyCode === 98)
-        key2 = false
-    if(event.keyCode === 99)
-        key3 = false
-    if(event.keyCode === 100)
-        key4 = false
-    if(event.keyCode === 101)
-        kFore = false
-    if(event.keyCode === 102)
-        key6 = false
-    if(event.keyCode === 103)
-        key7 = false
-    if(event.keyCode === 104)
-        key8 = false
-    if(event.keyCode === 105)
-        key9 = false
+    if(event.keyCode === 79)
+        cheatDown = false
+    if(event.keyCode === 80)
+        cheatUp = false
 });
 
 function applyKeyInput()
 {
-    if(kFore)
+    if(kFore || leftMouse)
     {
         moveForward(-speed);
         //camera.position.z -= speed
@@ -188,44 +188,11 @@ function applyKeyInput()
         camera.rotation.y += rotSpeed
     if(kRigh)
         camera.rotation.y -= rotSpeed
+    if(keyAlt && cheatUp)
+        camera.position.y += speed
+    if(keyAlt && cheatDown)
+        camera.position.y -= speed
     
-    if(keyA)
-        camera.position.x -= speed;
-    if(keyS)
-        camera.position.y -= speed;
-    if(keyD)
-        camera.position.x += speed;
-    if(keyW)
-        camera.position.y += speed;/*
-    if(key1)
-    {
-        camera.rotation.x -= rotSpeed/Math.sqrt(2);
-        camera.rotation.y += rotSpeed/Math.sqrt(2);
-    }
-    if(key2)
-        camera.rotation.x -= rotSpeed;
-    if(key3)
-    {
-        camera.rotation.x -= rotSpeed/Math.sqrt(2);
-        camera.rotation.y -= rotSpeed/Math.sqrt(2);
-    }
-    if(key4)
-        camera.rotation.y += rotSpeed;
-    if(key6)
-        camera.rotation.y -= rotSpeed;
-    if(key7)
-    {
-        camera.rotation.x += rotSpeed/Math.sqrt(2);
-        camera.rotation.y += rotSpeed/Math.sqrt(2);
-    }
-    if(key8)
-        camera.rotation.x += rotSpeed;
-    if(key9)
-    {
-        camera.rotation.x += rotSpeed/Math.sqrt(2);
-        camera.rotation.y -= rotSpeed/Math.sqrt(2);
-    }
-    */
     camera.rotation.x = camera.rotation.x % (2*Math.PI);
     camera.rotation.y = camera.rotation.y % (2*Math.PI);
 }
@@ -238,7 +205,7 @@ function moveForward(dist)
     var y = dist*Math.sin(xR)
     var x = dist*Math.cos(xR)*Math.sin(yR)
     
-    if(isSpaceClear(camera.position.x + (3*x), camera.position.y+(3*y), camera.position.z+(3*z)))
+    if(isSpaceClear(camera.position.x + (x), camera.position.y+(y), camera.position.z+(z)))
     {
         camera.position.x += x
         camera.position.y += y
@@ -267,19 +234,11 @@ function clearAllKeys()
 {
     kBack = false;
     kFore = false;
-    keyS = false;
-    keyW = false;
-    keyA = false;
-    keyD = false;
+    kLeft = false;
+    kRigh = false;
     keyAlt = false;
-    key1 = false;
-    key2 = false;
-    key3 = false;
-    key4 = false;
-    key6 = false;
-    key7 = false;
-    key8 = false;
-    key9 = false;
+    leftMouse = false;
+    rightMouse = false;
 }
 
 function render()
@@ -291,20 +250,6 @@ function render()
     pointLight.position.y = camera.position.y
     pointLight.position.z = camera.position.z
     goal.material.color.setRGB(Math.random(),Math.random(),Math.random())
-}
-
-function room(xIn, yIn, zIn, rIn, detail)
-{
-    this.x = xIn;
-    this.y = yIn;
-    this.z = zIn;
-    this.r = rIn;
-    this.geometry = new THREE.SphereGeometry(rIn, detail, detail)
-    this.material = new THREE.MeshLambertMaterial( { color: Math.ceil(16777215*Math.random()) });
-    this.form = new THREE.Mesh(this.geometry, this.material);
-    this.form.position.x = xIn
-    this.form.position.y = yIn
-    this.form.position.z = zIn
 }
 
 function generateMaze()
@@ -328,33 +273,7 @@ function generateMaze()
     {
         maze[0][i] = 4
         maze[size-1][i] = 4
-    }/*
-    maze [0] =  [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4]
-    maze [1] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [2] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [3] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [4] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [5] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [6] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [7] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [8] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [9] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [10] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [11] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [12] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [13] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [14] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [15] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [16] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [17] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [18] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [19] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [20] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [21] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [22] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [23] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [24] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
-    maze [25] = [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4]*/
+    }
     var tempX = Math.floor(Math.random()*(size-2))+1;
     var tempY = Math.floor(Math.random()*(size-2))+1;
     maze[tempX][tempY] = 2;
