@@ -1,9 +1,9 @@
-var maze = generateMaze(25,25)
 
+var size = 15
 var speed = .2
 var rotSpeed = .06
 var boxSize = 3
-var lightIntensity = 1
+var lightIntensity = 2
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -15,28 +15,11 @@ var geometry
 var material
 var walls = []
 var count = 0
-for(var i=0; i<maze.length; i++)
-{
-    for(var j=0; j<maze[i].length; j++)
-    {
-        if(maze[i][j] == 1)
-        {
-            geometry = new THREE.BoxGeometry(boxSize,boxSize,boxSize)
-            material = new THREE.MeshLambertMaterial({color: Math.ceil(16777215*Math.random()) } );
-            walls[count] = new THREE.Mesh(geometry, material);
-            scene.add(walls[count])
-            walls[count].position.x = (i+.5)*boxSize
-            walls[count].position.y = 0
-            walls[count].position.z = (j+.5)*boxSize
-            count++
-        }
-        if(maze[i][j] == 2)
-        {
-            camera.position.x = i*boxSize
-            camera.position.z = j*boxSize
-        }
-    }
-}
+var goal
+var maze
+
+generateMaze()
+
 
 
 /*
@@ -70,7 +53,6 @@ pointLight.position.y = 50;
 pointLight.position.z = 130;
 scene.add(pointLight);
 
-camera.position.z = 5;
 render();
 
 
@@ -256,7 +238,7 @@ function moveForward(dist)
     var y = dist*Math.sin(xR)
     var x = dist*Math.cos(xR)*Math.sin(yR)
     
-    if(isSpaceClear(camera.position.x + (10*x), camera.position.y+(10*y), camera.position.z+(10*z)))
+    if(isSpaceClear(camera.position.x + (3*x), camera.position.y+(3*y), camera.position.z+(3*z)))
     {
         camera.position.x += x
         camera.position.y += y
@@ -270,7 +252,12 @@ function moveForward(dist)
 
 function isSpaceClear(xIn, yIn, zIn)
 {
-    if(keyAlt || maze[Math.floor(xIn/boxSize)][Math.floor(zIn/boxSize)] != 1)
+    if (maze[Math.floor(xIn/boxSize)][Math.floor(zIn/boxSize)] == 3)
+    {
+        clearAllKeys()
+        generateMaze()
+    }
+    if(keyAlt || ((maze[Math.floor(xIn/boxSize)][Math.floor(zIn/boxSize)] != 1) && (maze[Math.floor(xIn/boxSize)][Math.floor(zIn/boxSize)] != 4)))
         return true
     else
         return false
@@ -303,6 +290,7 @@ function render()
     pointLight.position.x = camera.position.x
     pointLight.position.y = camera.position.y
     pointLight.position.z = camera.position.z
+    goal.material.color.setRGB(Math.random(),Math.random(),Math.random())
 }
 
 function room(xIn, yIn, zIn, rIn, detail)
@@ -319,34 +307,127 @@ function room(xIn, yIn, zIn, rIn, detail)
     this.form.position.z = zIn
 }
 
-function generateMaze(width, height)
+function generateMaze()
 {
-    var output = []
-    output [0] =  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [1] =  [1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [2] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [3] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [4] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [5] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [6] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [7] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [8] =  [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [9] =  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1]
-    output [10] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1]
-    output [11] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1]
-    output [12] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1]
-    output [13] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1]
-    output [14] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1]
-    output [15] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1]
-    output [16] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,3,1,1,1,1,1,1,1]
-    output [17] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [18] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [19] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [20] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [21] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [22] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [23] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [24] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    output [25] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    return output
+    for(var i=0; i<count; i++)
+    {
+        scene.remove(walls[i])
+    }
+    scene.remove(goal)
+    count = 0
+    maze = []
+    for(var i=0; i<size; i++)
+    {
+        maze[i] = []
+        for(var j=0; j<size; j++)
+            maze[i][j] = 1
+        maze[i][0] = 4
+        maze[i][size-1] = 4
+    }
+    for(var i=0; i<size; i++)
+    {
+        maze[0][i] = 4
+        maze[size-1][i] = 4
+    }/*
+    maze [0] =  [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4]
+    maze [1] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [2] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [3] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [4] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [5] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [6] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [7] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [8] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [9] =  [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [10] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [11] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [12] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [13] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [14] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [15] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [16] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [17] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [18] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [19] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [20] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [21] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [22] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [23] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [24] = [4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4]
+    maze [25] = [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4]*/
+    var tempX = Math.floor(Math.random()*(size-2))+1;
+    var tempY = Math.floor(Math.random()*(size-2))+1;
+    maze[tempX][tempY] = 2;
+    while(maze[tempX][tempY]!=3)
+    {
+        var moves = []
+        if(maze[tempX-1][tempY]==1)
+            moves.push([-1,0])
+        if(maze[tempX+1][tempY]==1)
+            moves.push([1,0])
+        if(maze[tempX][tempY-1]==1)
+            moves.push([0,-1])
+        if(maze[tempX][tempY+1]==1)
+            moves.push([0,1]);
+        if(moves.length==0) // out of moves
+            maze[tempX][tempY] = 3
+        else // found a move
+        {
+            var move = Math.floor(Math.random()*(moves.length))
+            if(maze[tempX-1][tempY]==1)
+                maze[tempX-1][tempY] = 4
+            if(maze[tempX+1][tempY]==1)
+                maze[tempX+1][tempY] = 4
+            if(maze[tempX][tempY-1]==1)
+                maze[tempX][tempY-1] = 4
+            if(maze[tempX][tempY+1]==1)
+                maze[tempX][tempY+1] = 4
+            tempX += moves[move][0]
+            tempY += moves[move][1]
+            maze[tempX][tempY] = 0
+        }
+        
+    }
+    for(var i=1; i<(size-1); i++)
+    {
+        for(var j=1; j<(size-1); j++)
+        {
+            if((Math.random()<.5)&&((maze[i][j]==4)||(maze[i][j]==1)))
+            {
+                maze[i][j] = 0;
+            }
+        }
+    }
+    for(var i=0; i<maze.length; i++)
+    {
+        for(var j=0; j<maze.length; j++)
+        {
+            if((maze[i][j] == 1) || (maze[i][j] == 4))
+            {
+                geometry = new THREE.BoxGeometry(boxSize,boxSize,boxSize)
+                material = new THREE.MeshLambertMaterial({color: Math.ceil(16777215*Math.random()) } );
+                walls[count] = new THREE.Mesh(geometry, material);
+                scene.add(walls[count])
+                walls[count].position.x = (i+speed)*boxSize
+                walls[count].position.y = 0
+                walls[count].position.z = (j+speed)*boxSize
+                count++
+            }
+            if(maze[i][j] == 2)
+            {
+                camera.position.x = (i+.5)*boxSize
+                camera.position.z = (j+.5)*boxSize
+            }
+            if(maze[i][j] == 3)
+            {
+                geometry = new THREE.SphereGeometry(boxSize/3, 20, 20)
+                material = new THREE.MeshLambertMaterial({color: Math.ceil(16777215*Math.random()) } );
+                goal = new THREE.Mesh(geometry, material);
+                scene.add(goal)
+                goal.position.x = (i)*boxSize
+                goal.position.y = 0
+                goal.position.z = (j)*boxSize
+            }
+        }
+    }
 }
